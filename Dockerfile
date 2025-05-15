@@ -28,15 +28,15 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY cmd ./cmd
 
+# Include default config template
+COPY default-config.yaml /app/default-config.yaml
+
 # Build the Go binary
 RUN go build -o streamer cmd/streamer/main.go
 
 # Copy entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Create config dir
-RUN mkdir -p /config
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["./streamer"]
