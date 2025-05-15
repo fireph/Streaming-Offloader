@@ -60,7 +60,7 @@ func loadConfig(path string) (*Config, error) {
 func buildArgs(port int, s StreamConfig) []string {
     args := []string{
         "-listen", "1",
-        "-f", "rtmp",
+        "-f", "flv",
         "-i", fmt.Sprintf("rtmp://0.0.0.0:%d", port),
     }
     // Video: copy or encode with NVENC options
