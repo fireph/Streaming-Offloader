@@ -15,6 +15,7 @@ import (
 type CodecConfig struct {
     Codec          string `yaml:"codec"`
     Bitrate        string `yaml:"bitrate"`
+    PixelFormat    string `yaml:"pixel_format,omitempty"`
     RateControl    string `yaml:"rate_control,omitempty"`
     Preset         string `yaml:"preset,omitempty"`
     KeyInt         int    `yaml:"keyint,omitempty"`
@@ -62,6 +63,9 @@ func buildArgs(s StreamConfig) []string {
         args = append(args, "-c:v", "copy")
     } else {
         args = append(args, "-c:v", s.Video.Codec, "-b:v", s.Video.Bitrate)
+        if s.Video.PixelFormat != "" {
+            args = append(args, "-pix_fmt", s.Video.PixelFormat)
+        }
         if s.Video.RateControl != "" {
             args = append(args, "-rc:v", s.Video.RateControl)
         }
