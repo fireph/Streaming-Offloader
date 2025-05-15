@@ -1,4 +1,4 @@
-// default-config.yaml
+# default-config.yaml
 listen_port: 1935
 timeout_sec: 60
 streams:
