@@ -30,5 +30,5 @@ streams:
       codec: h264_nvenc
       bitrate: 8000k
     audio:
-      codec: aac
-      bitrate: 128k
+      codec: copy
+      bitrate: ""
