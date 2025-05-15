@@ -8,7 +8,8 @@ streams:
     video:
       codec: av1_nvenc
       bitrate: 60000k
-      rate_control: cbr           # NVENC rate control mode (e.g., cbr, vbr, constqp)
+      pixel_format: nv12          # Pixel format (yuv420p, nv12, p010le, yuv444p, p016le, yuv444p16le, etc.)
+      rate_control: cbr           # NVENC rate control mode (cbr, vbr, constqp)
       preset: p7                  # NVENC preset (p1-p7, etc.)
       keyint: 120                 # GOP size (keyframe interval)
       tune: hq                    # Tuning (e.g., hq, ll, ull, lossless)
@@ -29,6 +30,18 @@ streams:
     video:
       codec: h264_nvenc
       bitrate: 8000k
+      pixel_format: nv12          # Pixel format (yuv420p, nv12, p010le, yuv444p, p016le, yuv444p16le, etc.)
+      rate_control: cbr_hq        # NVENC rate control mode (e.g., cbr, vbr, constqp)
+      preset: p7                  # NVENC preset (p1-p7, etc.)
+      keyint: 120                 # GOP size (keyframe interval)
+      tune: hq                    # Tuning (e.g., hq, ll, ull, lossless)
+      profile: high               # H.264 profile (baseline, main, high, high444p)
+      lookahead_level: 15         # Lookahead level (-1 to 15)
+      spatial_aq: true            # Enable spatial adaptive quantization
+      temporal_aq: true           # Enable temporal adaptive quantization
+      bframes: 2                  # Number of B-frames
+      b_ref_mode: each            # B-frame reference mode (disabled, each, middle)
+      multipass: fullres          # NVENC multipass (disabled, qres, fullres)
     audio:
       codec: copy
       bitrate: ""
