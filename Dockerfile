@@ -30,9 +30,8 @@ RUN git clone https://git.ffmpeg.org/ffmpeg.git /ffmpeg && \
 RUN apt-get update && apt-get install -y golang && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
-COPY go.sum ./
 COPY cmd ./cmd
 
 # Include default config template
