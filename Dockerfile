@@ -24,7 +24,7 @@ RUN git clone https://git.ffmpeg.org/ffmpeg.git /ffmpeg && \
 RUN apt-get update && apt-get install -y golang && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 COPY cmd ./cmd
 
