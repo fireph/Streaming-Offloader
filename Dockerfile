@@ -1,10 +1,11 @@
 FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
 
-# Install dependencies and gosu for privilege drop
+# Install dependencies, NVENC headers, and gosu for privilege drop
 RUN apt-get update && apt-get install -y \
     git build-essential pkg-config libssl-dev yasm nasm \
     libx264-dev libfdk-aac-dev autoconf automake libtool \
     bash curl wget ca-certificates \
+    nv-codec-headers libnvidia-encode1 \
     gosu \
   && rm -rf /var/lib/apt/lists/*
 
@@ -15,7 +16,7 @@ RUN git clone https://git.ffmpeg.org/ffmpeg.git /ffmpeg && \
       --enable-gpl --enable-nonfree \
       --enable-libx264 --enable-libfdk-aac \
       --enable-cuda --enable-nvenc \
-      --extra-cflags="-I/usr/local/cuda/include" \
+      --extra-cflags="-I/usr/local/cuda/include -I/usr/include/ffnvcodec" \
       --extra-ldflags="-L/usr/local/cuda/lib64" && \
     make -j$(nproc) && make install && \
     cd / && rm -rf /ffmpeg
