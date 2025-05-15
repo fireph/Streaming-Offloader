@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
 # Install dependencies and gosu for privilege drop
 RUN apt-get update && apt-get install -y \
@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Install NVENC headers (nv-codec-headers)
-RUN git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers.git /nv-codec-headers && \
+RUN git clone --branch sdk/12.2 https://git.videolan.org/git/ffmpeg/nv-codec-headers.git /nv-codec-headers && \
     cd /nv-codec-headers && \
     make install PREFIX=/usr && \
     cd / && rm -rf /nv-codec-headers
