@@ -83,7 +83,7 @@ func buildArgs(port int, s StreamConfig) []string {
             args = append(args, "-g", strconv.Itoa(s.Video.KeyInt))
         }
         if s.Video.LookaheadLevel > 0 {
-            args = append(args, "-lookahead", strconv.Itoa(s.Video.LookaheadLevel))
+            args = append(args, "-lookahead_level", strconv.Itoa(s.Video.LookaheadLevel))
         }
         if s.Video.SpatialAQ {
             args = append(args, "-spatial-aq", "1")
