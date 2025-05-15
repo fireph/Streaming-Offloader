@@ -59,6 +59,7 @@ func loadConfig(path string) (*Config, error) {
 
 func buildArgs(port int, s StreamConfig) []string {
     args := []string{
+        "-hwaccel", "cuda",
         "-listen", "1",
         "-f", "flv",
         "-i", fmt.Sprintf("rtmp://0.0.0.0:%d", port),

@@ -20,7 +20,7 @@ RUN git clone https://git.ffmpeg.org/ffmpeg.git /ffmpeg && \
     ./configure --prefix=/usr/local \
       --enable-gpl --enable-nonfree \
       --enable-libx264 --enable-libfdk-aac \
-      --enable-cuda --enable-nvenc \
+      --enable-cuda --enable-cuvid --enable-nvenc --enable-nvdec \
       --extra-cflags="-I/usr/local/cuda/include -I/usr/include/ffnvcodec" \
       --extra-ldflags="-L/usr/local/cuda/lib64" && \
     make -j$(nproc) && make install && \
