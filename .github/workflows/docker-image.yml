@@ -41,6 +41,3 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: dungfu/rtmp-nvenc-streaming-offloader:latest
-
-      - name: Image digest
-        run: echo "Pushed image digest: ${{ steps.build_and_push.outputs.digest }}"
