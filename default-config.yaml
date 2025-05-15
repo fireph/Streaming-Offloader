@@ -1,0 +1,34 @@
+// default-config.yaml
+listen_port: 1935
+timeout_sec: 60
+streams:
+  - name: youtube
+    url: rtmp://a.rtmp.youtube.com/live2
+    key: YOUR_YOUTUBE_KEY
+    video:
+      codec: av1_nvenc
+      bitrate: 60000k
+      rate_control: cbr           # NVENC rate control mode (e.g., cbr, vbr, constqp)
+      preset: p7                  # NVENC preset (p1-p7, etc.)
+      keyint: 120                 # GOP size (keyframe interval)
+      tune: hq                    # Tuning (e.g., hq, ll, ull, lossless)
+      profile: main               # H.264 profile (baseline, main, high, high444p)
+      lookahead_level: 3          # Enable lookahead (0-3)
+      spatial_aq: true            # Enable spatial adaptive quantization
+      temporal_aq: true           # Enable temporal adaptive quantization
+      bframes: 2                  # Number of B-frames
+      b_ref_mode: each            # B-frame reference mode (disabled, each, middle)
+      multipass: fullres          # NVENC multipass (disabled, qres, fullres)
+    audio:
+      codec: copy
+      bitrate: ""
+
+  - name: twitch
+    url: rtmp://live.twitch.tv/app
+    key: YOUR_TWITCH_KEY
+    video:
+      codec: h264_nvenc
+      bitrate: 8000k
+    audio:
+      codec: aac
+      bitrate: 128k
