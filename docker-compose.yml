@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  streamer:
+    build: .
+    ports:
+      - "1935:1935"
+    environment:
+      - RUN_USER=1000
+      - RUN_GROUP=1000
+    volumes:
+      - ./config:/config
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
