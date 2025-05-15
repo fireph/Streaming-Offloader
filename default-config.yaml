@@ -13,7 +13,7 @@ streams:
       keyint: 120                 # GOP size (keyframe interval)
       tune: hq                    # Tuning (e.g., hq, ll, ull, lossless)
       profile: main               # H.264 profile (baseline, main, high, high444p)
-      lookahead_level: 3          # Enable lookahead (0-3)
+      lookahead_level: 15         # Lookahead level (-1 to 15)
       spatial_aq: true            # Enable spatial adaptive quantization
       temporal_aq: true           # Enable temporal adaptive quantization
       bframes: 2                  # Number of B-frames
