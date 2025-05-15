@@ -2,25 +2,38 @@ package main
 
 import (
     "context"
+    "fmt"
     "log"
     "os"
     "os/exec"
+    "strconv"
     "time"
+
     "gopkg.in/yaml.v2"
 )
 
-type StreamConfig struct {
-    Name       string `yaml:"name"`
-    URL        string `yaml:"url"`
-    Key        string `yaml:"key"`
-    Video      CodecConfig `yaml:"video"`
-    Audio      CodecConfig `yaml:"audio"`
-    Passthrough bool   `yaml:"passthrough"`
+type CodecConfig struct {
+    Codec          string `yaml:"codec"`
+    Bitrate        string `yaml:"bitrate"`
+    RateControl    string `yaml:"rate_control,omitempty"`
+    Preset         string `yaml:"preset,omitempty"`
+    KeyInt         int    `yaml:"keyint,omitempty"`
+    Tune           string `yaml:"tune,omitempty"`
+    Profile        string `yaml:"profile,omitempty"`
+    LookaheadLevel int    `yaml:"lookahead_level,omitempty"`
+    SpatialAQ      bool   `yaml:"spatial_aq,omitempty"`
+    TemporalAQ     bool   `yaml:"temporal_aq,omitempty"`
+    BFrames        int    `yaml:"bframes,omitempty"`
+    BRefMode       string `yaml:"b_ref_mode,omitempty"`
+    Multipass      string `yaml:"multipass,omitempty"`
 }
 
-type CodecConfig struct {
-    Codec   string `yaml:"codec"`
-    Bitrate string `yaml:"bitrate"`
+type StreamConfig struct {
+    Name  string      `yaml:"name"`
+    URL   string      `yaml:"url"`
+    Key   string      `yaml:"key"`
+    Video CodecConfig `yaml:"video"`
+    Audio CodecConfig `yaml:"audio"`
 }
 
 type Config struct {
@@ -36,9 +49,61 @@ func loadConfig(path string) (*Config, error) {
     }
     defer f.Close()
     var cfg Config
-    dec := yaml.NewDecoder(f)
-    err = dec.Decode(&cfg)
-    return &cfg, err
+    if err := yaml.NewDecoder(f).Decode(&cfg); err != nil {
+        return nil, err
+    }
+    return &cfg, nil
+}
+
+func buildArgs(s StreamConfig) []string {
+    args := []string{"-f", "flv", "-listen", "1"}
+    // Video: copy or encode with NVENC options
+    if s.Video.Codec == "copy" {
+        args = append(args, "-c:v", "copy")
+    } else {
+        args = append(args, "-c:v", s.Video.Codec, "-b:v", s.Video.Bitrate)
+        if s.Video.RateControl != "" {
+            args = append(args, "-rc:v", s.Video.RateControl)
+        }
+        if s.Video.Preset != "" {
+            args = append(args, "-preset", s.Video.Preset)
+        }
+        if s.Video.Tune != "" {
+            args = append(args, "-tune", s.Video.Tune)
+        }
+        if s.Video.Profile != "" {
+            args = append(args, "-profile:v", s.Video.Profile)
+        }
+        if s.Video.KeyInt > 0 {
+            args = append(args, "-g", strconv.Itoa(s.Video.KeyInt))
+        }
+        if s.Video.LookaheadLevel > 0 {
+            args = append(args, "-lookahead", strconv.Itoa(s.Video.LookaheadLevel))
+        }
+        if s.Video.SpatialAQ {
+            args = append(args, "-spatial-aq", "1")
+        }
+        if s.Video.TemporalAQ {
+            args = append(args, "-temporal-aq", "1")
+        }
+        if s.Video.BFrames > 0 {
+            args = append(args, "-bf", strconv.Itoa(s.Video.BFrames))
+        }
+        if s.Video.BRefMode != "" {
+            args = append(args, "-b_ref_mode", s.Video.BRefMode)
+        }
+        if s.Video.Multipass != "" {
+            args = append(args, "-multipass", s.Video.Multipass)
+        }
+    }
+    // Audio: copy or basic encode
+    if s.Audio.Codec == "copy" {
+        args = append(args, "-c:a", "copy")
+    } else {
+        args = append(args, "-c:a", s.Audio.Codec, "-b:a", s.Audio.Bitrate)
+    }
+    args = append(args, "-f", "flv", fmt.Sprintf("%s/%s", s.URL, s.Key))
+    return args
 }
 
 func main() {
@@ -46,43 +111,23 @@ func main() {
     if err != nil {
         log.Fatalf("failed to load config: %v", err)
     }
-    // build ffmpeg args
-    baseArgs := []string{
-        "-f", "flv", "-listen", "1",
-        "-timeout", fmt.Sprint(cfg.TimeoutSec * 1000000),
-        fmt.Sprintf("tcp://0.0.0.0:%d", cfg.ListenPort),
-    }
     for _, s := range cfg.Streams {
-        out := fmt.Sprintf("%s/%s", s.URL, s.Key)
-        args := append([]string{}, baseArgs...)
-        if s.Passthrough {
-            args = append(args, "-c", "copy")
-        } else {
-            args = append(args,
-                "-c:v", s.Video.Codec,
-                "-b:v", s.Video.Bitrate,
-                "-c:a", s.Audio.Codec,
-                "-b:a", s.Audio.Bitrate,
-            )
-        }
-        args = append(args, "-f", "flv", out)
-        go func(name string) {
+        args := buildArgs(s)
+        go func(name string, cmdArgs []string) {
             for {
                 ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.TimeoutSec+10)*time.Second)
-                defer cancel()
-                cmd := exec.CommandContext(ctx, "ffmpeg", args...)
+                cmd := exec.CommandContext(ctx, "ffmpeg", cmdArgs...)
                 cmd.Stdout = os.Stdout
                 cmd.Stderr = os.Stderr
                 log.Printf("starting stream %s", name)
                 err := cmd.Run()
+                cancel()
                 if err != nil {
                     log.Printf("stream %s exited: %v", name, err)
                 }
-                // restart after short delay
                 time.Sleep(5 * time.Second)
             }
-        }(s.Name)
+        }(s.Name, args)
     }
-    // block forever
     select {}
 }
