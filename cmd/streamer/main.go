@@ -3,6 +3,7 @@ package main
 import (
     "context"
     "fmt"
+    "io"
     "log"
     "os"
     "os/exec"
@@ -111,6 +112,18 @@ func buildArgs(s StreamConfig) []string {
 }
 
 func main() {
+    // open (or create) our log file
+    lf, err := os.OpenFile("/config/streamer.log",
+        os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "could not open log file: %v\n", err)
+    } else {
+        // send all future log.Print/Printf/etc to both stdout and the file
+        mw := io.MultiWriter(os.Stdout, lf)
+        log.SetOutput(mw)
+        defer lf.Close()
+    }
+
     cfg, err := loadConfig("/config/config.yaml")
     if err != nil {
         log.Fatalf("failed to load config: %v", err)
