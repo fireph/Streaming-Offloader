@@ -8,6 +8,8 @@ on:
     paths:
       - ".github/workflows/docker-image.yml"
       - "Dockerfile"
+      - "cmd/streamer/main.go"
+      - "entrypoint.sh"
   workflow_dispatch:
 
 jobs:
