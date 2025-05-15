@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y golang && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY go.mod ./
 RUN go mod download
+COPY go.sum ./
 COPY cmd ./cmd
 
 # Include default config template
