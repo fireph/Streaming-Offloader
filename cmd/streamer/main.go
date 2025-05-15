@@ -57,8 +57,8 @@ func loadConfig(path string) (*Config, error) {
     return &cfg, nil
 }
 
-func buildArgs(s StreamConfig) []string {
-    args := []string{"-f", "flv", "-listen", "1"}
+func buildArgs(port int, s StreamConfig) []string {
+    args := []string{"-f", "flv", "-listen", "1", "-i", fmt.Sprintf("tcp://0.0.0.0:%d", port)}
     // Video: copy or encode with NVENC options
     if s.Video.Codec == "copy" {
         args = append(args, "-c:v", "copy")
@@ -129,7 +129,7 @@ func main() {
         log.Fatalf("failed to load config: %v", err)
     }
     for _, s := range cfg.Streams {
-        args := buildArgs(s)
+        args := buildArgs(cfg.ListenPort, s)
         go func(name string, cmdArgs []string) {
             for {
                 ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.TimeoutSec+10)*time.Second)
