@@ -1,6 +1,5 @@
 # default-config.yaml
 listen_port: 1935
-timeout_sec: 60
 streams:
   - name: youtube
     url: rtmp://a.rtmp.youtube.com/live2

@@ -40,7 +40,6 @@ type StreamConfig struct {
 
 type Config struct {
     ListenPort int            `yaml:"listen_port"`
-    TimeoutSec int            `yaml:"timeout_sec"`
     Streams    []StreamConfig `yaml:"streams"`
 }
 
@@ -122,12 +121,11 @@ func main() {
         os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
     if err != nil {
         fmt.Fprintf(os.Stderr, "could not open log file: %v\n", err)
-    } else {
-        // send all future log.Print/Printf/etc to both stdout and the file
-        mw := io.MultiWriter(os.Stdout, lf)
-        log.SetOutput(mw)
-        defer lf.Close()
     }
+    // send all future log.Print/Printf/etc to both stdout and the file
+    mw := io.MultiWriter(os.Stdout, lf)
+    log.SetOutput(mw)
+    defer lf.Close()
 
     cfg, err := loadConfig("/config/config.yaml")
     if err != nil {
@@ -137,14 +135,11 @@ func main() {
         args := buildArgs(cfg.ListenPort, s)
         go func(name string, cmdArgs []string) {
             for {
-                ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.TimeoutSec+10)*time.Second)
-                cmd := exec.CommandContext(ctx, "ffmpeg", cmdArgs...)
-                cmd.Stdout = os.Stdout
-                cmd.Stderr = os.Stderr
                 log.Printf("starting stream %s", name)
-                err := cmd.Run()
-                cancel()
-                if err != nil {
+                cmd := exec.Command("ffmpeg", cmdArgs...)
+                cmd.Stdout = mw
+                cmd.Stderr = mw
+                if err := cmd.Run(); err != nil {
                     log.Printf("stream %s exited: %v", name, err)
                 }
                 time.Sleep(5 * time.Second)
