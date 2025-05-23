@@ -122,10 +122,10 @@ func main() {
     if err != nil {
         fmt.Fprintf(os.Stderr, "could not open log file: %v\n", err)
     }
-    // send all future log.Print/Printf/etc to both stdout and the file
+    defer lf.Close()
     mw := io.MultiWriter(os.Stdout, lf)
     log.SetOutput(mw)
-    defer lf.Close()
+    log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 
     cfg, err := loadConfig("/config/config.yaml")
     if err != nil {
