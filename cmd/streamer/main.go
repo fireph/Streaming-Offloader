@@ -30,11 +30,12 @@ type CodecConfig struct {
 }
 
 type StreamConfig struct {
-    Name  string      `yaml:"name"`
-    URL   string      `yaml:"url"`
-    Key   string      `yaml:"key"`
-    Video CodecConfig `yaml:"video"`
-    Audio CodecConfig `yaml:"audio"`
+    Name       string      `yaml:"name"`
+    URL        string      `yaml:"url"`
+    Key        string      `yaml:"key"`
+    InputCodec string      `yaml:"input_codec"`
+    Video      CodecConfig `yaml:"video"`
+    Audio      CodecConfig `yaml:"audio"`
 }
 
 type Config struct {
@@ -58,6 +59,7 @@ func loadConfig(path string) (*Config, error) {
 func buildArgs(port int, s StreamConfig) []string {
     args := []string{
         "-hwaccel", "cuda",
+        "-c:v", s.InputCodec,
         "-listen", "1",
         "-i", fmt.Sprintf("rtmp://0.0.0.0:%d", port),
     }

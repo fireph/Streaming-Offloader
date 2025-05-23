@@ -4,6 +4,7 @@ streams:
   - name: youtube
     url: rtmp://a.rtmp.youtube.com/live2
     key: YOUR_YOUTUBE_KEY
+    input_codec: av1_cuvid
     video:
       codec: av1_nvenc
       bitrate: 60000k
@@ -26,6 +27,7 @@ streams:
   - name: twitch
     url: rtmp://live.twitch.tv/app
     key: YOUR_TWITCH_KEY
+    input_codec: av1_cuvid
     video:
       codec: h264_nvenc
       bitrate: 8000k
