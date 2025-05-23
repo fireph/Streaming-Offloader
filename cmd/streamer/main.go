@@ -59,7 +59,6 @@ func buildArgs(port int, s StreamConfig) []string {
     args := []string{
         "-hwaccel", "cuda",
         "-listen", "1",
-        "-f", "flv",
         "-i", fmt.Sprintf("rtmp://0.0.0.0:%d", port),
     }
     // Video: copy or encode with NVENC options
